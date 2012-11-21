@@ -56,17 +56,18 @@ public class MainActivity extends Activity {
 		if (inArray(fileList(), parseUrl(strUrl))){
 			Log.d("IO", "File found in cache");
 			iStream = openFileInput(parseUrl(strUrl));
+			song = convertStream(iStream).toString();
 		} else{
 			try {
 				URL url = new URL(strUrl);
 				HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 				urlConnection.connect();
 				iStream = urlConnection.getInputStream();
+				song = convertStream(iStream).toString();
 			} catch(Exception e) {
 				Log.d("Exception while downloading url", e.toString());
 			}
 		}
-		song = convertStream(iStream).toString();
 		return song;
 	}
 	
