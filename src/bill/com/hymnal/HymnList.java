@@ -18,6 +18,7 @@ public class HymnList extends Activity {
 		String [] songArray = songArrayList.toArray(new String[songArrayList.size()]);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, songArray);
 		ListView songList = (ListView) findViewById(R.id.songList);
+		songList.setSelector(android.R.color.transparent);
 		songList.setAdapter(adapter);
 	}
 }
