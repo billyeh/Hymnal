@@ -1,6 +1,8 @@
 package bill.com.hymnal;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,11 +53,15 @@ public class MainActivity extends Activity {
 	private String downloadUrl(String strUrl) throws IOException {
 		InputStream iStream = null;
 		String song = null;
+		if (inArray(fileList(), parseUrl(strUrl))){
+			Log.d("IO", "File found in cache");
+			iStream = openFileInput(parseUrl(strUrl));
+		}
 		try {
 			URL url = new URL(strUrl);
 			StringBuilder total = new StringBuilder();
 			String line = null;
-			
+
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 			urlConnection.connect();
 			iStream = urlConnection.getInputStream();
@@ -76,7 +82,6 @@ public class MainActivity extends Activity {
 		String json = null;
 		@Override
 		protected String doInBackground(String... url) {
-			Log.d("BOSS", fileList().toString());
 			try {
 				json = downloadUrl(url[0]);
 			} catch(Exception e) {
@@ -88,6 +93,8 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(String result) {
 			ArrayList<String> stanza = null;
 			JSONArray jArray = null;
+			FileOutputStream songSaver = null;
+			String url = null;
 			try {
 				jArray = new JSONArray(result);
 				stanza = jsonToArrayList(jArray);
@@ -95,6 +102,18 @@ public class MainActivity extends Activity {
 				e.printStackTrace();
 			}
 			Toast.makeText(getBaseContext(), "Song downloaded succesfully", Toast.LENGTH_SHORT).show();
+			try {
+				url = parseUrl(((EditText) findViewById(R.id.et_url)).getText().toString());
+				songSaver = openFileOutput(url, Context.MODE_PRIVATE);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			try {
+				songSaver.write(result.getBytes());
+				songSaver.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			Intent show_song = new Intent(getBaseContext(), HymnList.class);
 			show_song.putExtra("song", stanza);
 			startActivity(show_song);
@@ -107,7 +126,7 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	public ArrayList<String> jsonToArrayList(JSONArray json) throws JSONException {
+	public static ArrayList<String> jsonToArrayList(JSONArray json) throws JSONException {
 		ArrayList<String> songArray = new ArrayList<String>();
 		if (json != null) {
 			for (int i = 0; i < json.length(); i ++) {
@@ -128,4 +147,23 @@ public class MainActivity extends Activity {
 			available = true;
 		return available;
 	}
+	
+	public static String parseUrl(String url){
+        String [] split = url.split("/");
+        url = split[split.length - 1];
+        split = url.split("=");
+        String hymnType = split[2];
+        char hymnNumber = split[1].charAt(0);
+        return "hymn" + hymnNumber + "type" + hymnType;
+	}
+
+	public static boolean inArray(String [] arr, String val){
+		int i = 0;
+		while (i < arr.length){
+			if (arr[i].equals(val)){
+				return true;
+			}
+			i++;
+		}
+		return false;}
 }
