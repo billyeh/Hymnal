@@ -64,8 +64,6 @@ public class MainActivity extends Activity {
 				iStream = urlConnection.getInputStream();
 			} catch(Exception e) {
 				Log.d("Exception while downloading url", e.toString());
-			} finally {
-				iStream.close();
 			}
 		}
 		song = convertStream(iStream).toString();
@@ -89,28 +87,32 @@ public class MainActivity extends Activity {
 			JSONArray jArray = null;
 			FileOutputStream songSaver = null;
 			String url = null;
-			try {
-				jArray = new JSONArray(result);
-				stanza = jsonToArrayList(jArray);
-			} catch (JSONException e) {
-				e.printStackTrace();
+			if (result == null){
+				Toast.makeText(getBaseContext(), "Invalid song selection", Toast.LENGTH_SHORT).show();
+			} else{
+				try {
+					jArray = new JSONArray(result);
+					stanza = jsonToArrayList(jArray);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				Toast.makeText(getBaseContext(), "Song downloaded succesfully", Toast.LENGTH_SHORT).show();
+				try {
+					url = parseUrl(((EditText) findViewById(R.id.et_url)).getText().toString());
+					songSaver = openFileOutput(url, Context.MODE_PRIVATE);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				try {
+					songSaver.write(result.getBytes());
+					songSaver.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				Intent show_song = new Intent(getBaseContext(), HymnList.class);
+				show_song.putExtra("song", stanza);
+				startActivity(show_song);
 			}
-			Toast.makeText(getBaseContext(), "Song downloaded succesfully", Toast.LENGTH_SHORT).show();
-			try {
-				url = parseUrl(((EditText) findViewById(R.id.et_url)).getText().toString());
-				songSaver = openFileOutput(url, Context.MODE_PRIVATE);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-			try {
-				songSaver.write(result.getBytes());
-				songSaver.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			Intent show_song = new Intent(getBaseContext(), HymnList.class);
-			show_song.putExtra("song", stanza);
-			startActivity(show_song);
 		}
 	}
 	
@@ -147,7 +149,7 @@ public class MainActivity extends Activity {
         url = split[split.length - 1];
         split = url.split("=");
         String hymnType = split[2];
-        char hymnNumber = split[1].charAt(0);
+        String hymnNumber = split[1].split("&")[0];
         return "hymn" + hymnNumber + "type" + hymnType;
 	}
 
