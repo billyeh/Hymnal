@@ -56,25 +56,19 @@ public class MainActivity extends Activity {
 		if (inArray(fileList(), parseUrl(strUrl))){
 			Log.d("IO", "File found in cache");
 			iStream = openFileInput(parseUrl(strUrl));
-		}
-		try {
-			URL url = new URL(strUrl);
-			StringBuilder total = new StringBuilder();
-			String line = null;
-
-			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-			urlConnection.connect();
-			iStream = urlConnection.getInputStream();
-			BufferedReader r = new BufferedReader(new InputStreamReader(iStream));
-			while ((line = r.readLine()) != null) {
-			    total.append(line);
+		} else{
+			try {
+				URL url = new URL(strUrl);
+				HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+				urlConnection.connect();
+				iStream = urlConnection.getInputStream();
+			} catch(Exception e) {
+				Log.d("Exception while downloading url", e.toString());
+			} finally {
+				iStream.close();
 			}
-			song = total.toString();
-		} catch(Exception e) {
-			Log.d("Exception while downloading url", e.toString());
-		} finally {
-			iStream.close();
 		}
+		song = convertStream(iStream).toString();
 		return song;
 	}
 	
@@ -166,4 +160,15 @@ public class MainActivity extends Activity {
 			i++;
 		}
 		return false;}
+	
+	public StringBuilder convertStream(InputStream iStream) throws IOException{
+		String line = null;
+		BufferedReader r = new BufferedReader(new InputStreamReader(iStream));
+		StringBuilder total = new StringBuilder();
+		while ((line = r.readLine()) != null){
+			total.append(line);
+		}
+		iStream.close();
+		return total;
+	}
 }
