@@ -6,4 +6,5 @@ Upcoming are search and links in hymns.
 
 Here are a few screenshots of the app in action:
 
-![My image](http://i46.tinypic.com/wi33fm.png)
+![Screenshot1](http://i47.tinypic.com/mj1ct2.png)
+![Screenshot2](http://i47.tinypic.com/28sv6ut.png)
