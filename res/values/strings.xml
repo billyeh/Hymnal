@@ -6,5 +6,7 @@
     <string name="title_activity_main">Hymnal</string>
     <string name="str_btn_download">Download</string>
     <string name="str_tv_url">http://hymn.aws.af.cm/hymn?hymn=5&amp;type=ns</string>
+    <string name="str_download_prompt">Get the database from online to enable search!</string>
+    <string name="str_database_download">Get song database</string>
     
 </resources>

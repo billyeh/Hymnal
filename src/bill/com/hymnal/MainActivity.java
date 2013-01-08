@@ -6,8 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -50,25 +48,15 @@ public class MainActivity extends Activity {
 		btnDownload.setOnClickListener(downloadListener);
 	}
 
-	private String downloadUrl(String strUrl) throws IOException {
+	private String downloadHymn(String strUrl) throws IOException {
 		InputStream iStream = null;
-		String song = null;
-		if (inArray(fileList(), parseUrl(strUrl))){
+		if (Utility.inArray(fileList(), Utility.parseUrl(strUrl))){
 			Log.d("IO", "File found in cache");
-			iStream = openFileInput(parseUrl(strUrl));
-			song = convertStream(iStream).toString();
-		} else{
-			try {
-				URL url = new URL(strUrl);
-				HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-				urlConnection.connect();
-				iStream = urlConnection.getInputStream();
-				song = convertStream(iStream).toString();
-			} catch(Exception e) {
-				Log.d("Exception while downloading url", e.toString());
-			}
+			iStream = openFileInput(Utility.parseUrl(strUrl));
+		} else {
+			iStream = Utility.openConnection(strUrl);
 		}
-		return song;
+		return convertStream(iStream);
 	}
 	
 	private class DownloadTask extends AsyncTask<String, Integer, String> {
@@ -76,7 +64,7 @@ public class MainActivity extends Activity {
 		@Override
 		protected String doInBackground(String... url) {
 			try {
-				json = downloadUrl(url[0]);
+				json = downloadHymn(url[0]);
 			} catch(Exception e) {
 				Log.d("Background task", e.toString());
 			}
@@ -84,7 +72,7 @@ public class MainActivity extends Activity {
 		}
 		@Override
 		protected void onPostExecute(String result) {
-			ArrayList<String> stanza = null;
+			ArrayList<String> song = null;
 			JSONArray jArray = null;
 			FileOutputStream songSaver = null;
 			String url = null;
@@ -93,13 +81,12 @@ public class MainActivity extends Activity {
 			} else{
 				try {
 					jArray = new JSONArray(result);
-					stanza = jsonToArrayList(jArray);
+					song = Utility.jsonToArrayList(jArray);
 				} catch (JSONException e) {
-					e.printStackTrace();
+					Toast.makeText(getBaseContext(), "Error downloading song", Toast.LENGTH_SHORT).show();
 				}
-				Toast.makeText(getBaseContext(), "Song downloaded succesfully", Toast.LENGTH_SHORT).show();
 				try {
-					url = parseUrl(((EditText) findViewById(R.id.et_url)).getText().toString());
+					url = Utility.parseUrl(((EditText) findViewById(R.id.et_url)).getText().toString());
 					songSaver = openFileOutput(url, Context.MODE_PRIVATE);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
@@ -111,7 +98,7 @@ public class MainActivity extends Activity {
 					e.printStackTrace();
 				}
 				Intent show_song = new Intent(getBaseContext(), HymnList.class);
-				show_song.putExtra("song", stanza);
+				show_song.putExtra("song", song);
 				startActivity(show_song);
 			}
 		}
@@ -123,48 +110,16 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	public static ArrayList<String> jsonToArrayList(JSONArray json) throws JSONException {
-		ArrayList<String> songArray = new ArrayList<String>();
-		if (json != null) {
-			for (int i = 0; i < json.length(); i ++) {
-				songArray.add(json.get(i).toString());
-			}
-		}
-		return songArray;
-	}
-	
-	private boolean isNetworkAvailable() {
+	boolean isNetworkAvailable() {
 		boolean available = false;
-		
 		ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-		
 		if(networkInfo != null && networkInfo.isAvailable())
 			available = true;
 		return available;
 	}
 	
-	public static String parseUrl(String url){
-        String [] split = url.split("/");
-        url = split[split.length - 1];
-        split = url.split("=");
-        String hymnType = split[2];
-        String hymnNumber = split[1].split("&")[0];
-        return "hymn" + hymnNumber + "type" + hymnType;
-	}
-
-	public static boolean inArray(String [] arr, String val){
-		int i = 0;
-		while (i < arr.length){
-			if (arr[i].equals(val)){
-				return true;
-			}
-			i++;
-		}
-		return false;}
-	
-	public StringBuilder convertStream(InputStream iStream) throws IOException{
+	public String convertStream(InputStream iStream) throws IOException{
 		String line = null;
 		BufferedReader r = new BufferedReader(new InputStreamReader(iStream));
 		StringBuilder total = new StringBuilder();
@@ -172,6 +127,7 @@ public class MainActivity extends Activity {
 			total.append(line);
 		}
 		iStream.close();
-		return total;
+		return total.toString();
 	}
+
 }
