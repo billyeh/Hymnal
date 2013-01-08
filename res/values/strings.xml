@@ -1,12 +1,21 @@
 <resources>
-
+	<!-- Main app values -->
     <string name="app_name">Hymnal</string>
-    <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">Hymnal</string>
+    
+    <!-- Layout values for main activity -->
     <string name="str_btn_download">Download</string>
     <string name="str_tv_url">http://hymn.aws.af.cm/hymn?hymn=5&amp;type=ns</string>
-    <string name="str_download_prompt">Get the database from online to enable search!</string>
-    <string name="str_database_download">Get song database</string>
+    
+    <!-- Values for downloading the database -->
+    <string name="str_database_url">http://hymn.aws.af.cm/res/db/songdb.db</string>
+    <string name="str_download_description">Downloading hymns for Hymnal App</string>
+    <string name="str_download_title">Hymns Downloading</string>
+    <string name="str_database_name">songdb.db</string>
+    
+    <!--  For the download dialog box -->
+    <string name="str_dialog_title">Download hymns?</string>
+    <string name="str_dialog_message">Download the hymns so that you can use the application. You may want to switch to Wi-Fi for this download.</string>
     
 </resources>

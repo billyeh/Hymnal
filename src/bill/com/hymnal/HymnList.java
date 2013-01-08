@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class HymnList extends Activity {
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -20,7 +21,7 @@ public class HymnList extends Activity {
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, songArray);
 		ListView songList = (ListView) findViewById(R.id.songList);
 		
-		songList.setSelector(android.R.color.transparent);
+		songList.setSelector(android.R.color.transparent); // No dividers between song verses
 		songList.setAdapter(adapter);
 	}
 }

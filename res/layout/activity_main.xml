@@ -19,19 +19,5 @@
         android:layout_below="@id/et_url"
         android:text="@string/str_btn_download"
         tools:context=".MainActivity" />
-    
-    <TextView
-        android:id="@+id/tv_download_prompt"
-        android:text="@string/str_download_prompt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btn_download" />
-
-    <Button
-        android:id="@+id/btn_database_download"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_download_prompt"
-        android:text="@string/str_database_download" />
 
 </RelativeLayout>
