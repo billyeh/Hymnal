@@ -1,7 +1,6 @@
 package bill.com.hymnal;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -30,24 +28,6 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		if (true) {
-			DialogInterface.OnClickListener positive = new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					DownloadDatabase.startDownload(MainActivity.this);
-					Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
-				}
-			};
-			DialogInterface.OnClickListener negative = new DialogInterface.OnClickListener() {	
-				public void onClick(DialogInterface dialog, int which) {
-					Toast.makeText(MainActivity.this, "Download not started", Toast.LENGTH_SHORT).show();
-				}
-			};
-			Utility.showDialog(MainActivity.this, 
-					getResources().getString(R.string.str_dialog_title), 
-					getResources().getString(R.string.str_dialog_message), 
-					positive, negative);
-		}
-		
 		Button btnDownload = (Button) findViewById(R.id.btn_download);
 		btnDownload.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -63,13 +43,13 @@ public class MainActivity extends Activity {
 		);
 	}
 
-	private String downloadHymn(String strUrl) throws IOException {
+	private String downloadHymn(String url) throws IOException {
 		InputStream iStream = null;
-		if (Utility.inArray(fileList(), Utility.parseUrl(strUrl))){
+		if (Utility.inArray(fileList(), Utility.parseUrl(url))){
 			Log.d("IO", "File found in cache");
-			iStream = openFileInput(Utility.parseUrl(strUrl));
+			iStream = openFileInput(Utility.parseUrl(url));
 		} else {
-			iStream = Utility.openConnection(strUrl);
+			iStream = Utility.openConnection(url);
 		}
 		return Utility.convertStream(iStream);
 	}
@@ -81,23 +61,21 @@ public class MainActivity extends Activity {
 			try {
 				json = downloadHymn(url[0]);
 			} catch(Exception e) {
-				Log.d("Background task", e.toString());
+				e.printStackTrace();
 			}
 			return json;
 		}
 		@Override
 		protected void onPostExecute(String result) {
+			// Get ArrayList from JSONArray, start new activity to display hymn,
+			// Save hymn if not there before
 			ArrayList<String> song = null;
 			JSONArray jArray = null;
-			FileOutputStream songSaver = null;
 			String url = null;
 			
-			// Catches the case where the file is not retrieved from the URL
 			if (result == null){
 				Toast.makeText(getBaseContext(), "Invalid song selection", Toast.LENGTH_SHORT).show();
 			} else {
-				
-				// Catches errors in JSON parsing
 				try {
 					jArray = new JSONArray(result);
 					song = Utility.jsonToArrayList(jArray);
@@ -106,17 +84,10 @@ public class MainActivity extends Activity {
 				}
 				
 				url = Utility.parseUrl(((EditText) findViewById(R.id.et_url)).getText().toString());
-				// Catches errors with saving the file to internal storage
-				try {
-					songSaver = openFileOutput(url, Context.MODE_PRIVATE);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
-				try {
-					songSaver.write(result.getBytes());
-					songSaver.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+				
+				if (!Utility.inArray(fileList(), url)) {
+					Log.d("IO", "File not found in cache, saving " + url);
+					Utility.saveBytes(getBaseContext(), url, result.getBytes());
 				}
 				
 				// Start the new activity that shows the song
@@ -131,6 +102,30 @@ public class MainActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		File dbPath = getExternalFilesDir(null);
+		File database = new File(dbPath, getResources().getString(R.string.str_database_name));
+		
+		if (!database.exists()) {
+			DialogInterface.OnClickListener positive = new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					DownloadDatabase.startDownload(MainActivity.this);
+					Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
+				}
+			};
+			DialogInterface.OnClickListener negative = new DialogInterface.OnClickListener() {	
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			};
+			Utility.showDialog(MainActivity.this, 
+					getResources().getString(R.string.str_dialog_title), 
+					getResources().getString(R.string.str_dialog_message), 
+					positive, negative);
+		}
 	}
 
 }

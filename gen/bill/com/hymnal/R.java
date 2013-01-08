@@ -34,11 +34,11 @@ public final class R {
          */
         public static final int app_name=0x7f040000;
         public static final int menu_settings=0x7f040001;
-        /**  Layout values for main activity 
+        /**  Layout for main activity 
          */
         public static final int str_btn_download=0x7f040003;
         public static final int str_database_name=0x7f040008;
-        /**  Values for downloading the database 
+        /**  Database download 
          */
         public static final int str_database_url=0x7f040005;
         public static final int str_dialog_message=0x7f04000a;

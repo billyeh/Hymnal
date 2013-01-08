@@ -1,6 +1,8 @@
 package bill.com.hymnal;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,6 +76,7 @@ public class Utility {
 	}
 	
 	public static InputStream openConnection(String strUrl) {
+		Log.d("IO", "Opening HTTP connection");
 		InputStream iStream = null;
 		try {
 			URL url = new URL(strUrl);
@@ -108,6 +111,22 @@ public class Utility {
 		}
 		iStream.close();
 		return total.toString();
+	}
+	
+	// Given filename, bytes, save file in memory
+	public static void saveBytes(Context context, String filename, byte[] bs) {
+		FileOutputStream saver = null;
+		try {
+			saver = context.openFileOutput(filename, Context.MODE_PRIVATE);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		try {
+			saver.write(bs);
+			saver.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

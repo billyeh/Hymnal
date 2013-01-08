@@ -4,7 +4,6 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Environment;
 
 public class DownloadDatabase {
 	
@@ -17,7 +16,7 @@ public class DownloadDatabase {
 		
 		request.setTitle(res.getString(R.string.str_download_title));
 		request.setDescription(res.getString(R.string.str_download_description));
-		request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, 
+		request.setDestinationInExternalFilesDir(context, null,  
 				res.getString(R.string.str_database_name));
 		
 		DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
