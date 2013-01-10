@@ -8,17 +8,17 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -27,20 +27,6 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		Button btnDownload = (Button) findViewById(R.id.btn_download);
-		btnDownload.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				if (Utility.isNetworkAvailable(getBaseContext())) {
-					EditText etUrl = (EditText) findViewById(R.id.et_url);
-					DownloadTask downloadTask = new DownloadTask();
-					downloadTask.execute(etUrl.getText().toString());
-				} else {
-					Toast.makeText(getBaseContext(), "Network is not available", Toast.LENGTH_SHORT).show();
-				}
-			}
-		}
-		);
 	}
 
 	private String downloadHymn(String url) throws IOException {
@@ -56,6 +42,7 @@ public class MainActivity extends Activity {
 	
 	private class DownloadTask extends AsyncTask<String, Integer, String> {
 		String json = null;
+		
 		@Override
 		protected String doInBackground(String... url) {
 			try {
@@ -65,6 +52,7 @@ public class MainActivity extends Activity {
 			}
 			return json;
 		}
+		
 		@Override
 		protected void onPostExecute(String result) {
 			// Get ArrayList from JSONArray, start new activity to display hymn,
@@ -83,9 +71,10 @@ public class MainActivity extends Activity {
 					Toast.makeText(getBaseContext(), "Error downloading song", Toast.LENGTH_SHORT).show();
 				}
 				
-				url = Utility.parseUrl(((EditText) findViewById(R.id.et_url)).getText().toString());
+				url = Utility.parseUrl(getResources().getString(R.string.str_tv_url));
 				
 				if (!Utility.inArray(fileList(), url)) {
+					//TODO Remove Logging
 					Log.d("IO", "File not found in cache, saving " + url);
 					Utility.saveBytes(getBaseContext(), url, result.getBytes());
 				}
@@ -101,30 +90,47 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
-		return true;
+		
+	    SearchManager searchManager =
+	            (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+	    SearchView searchView =
+	             (SearchView) menu.findItem(R.id.menu_search).getActionView();
+	    searchView.setSearchableInfo(
+	             searchManager.getSearchableInfo(getComponentName()));
+		
+		return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override
 	public void onStart() {
 		super.onStart();
+		
 		File dbPath = getExternalFilesDir(null);
 		File database = new File(dbPath, getResources().getString(R.string.str_database_name));
 		
-		if (!database.exists()) {
-			DialogInterface.OnClickListener positive = new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					DownloadDatabase.startDownload(MainActivity.this);
-					Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
-				}
-			};
-			DialogInterface.OnClickListener negative = new DialogInterface.OnClickListener() {	
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			};
-			Utility.showDialog(MainActivity.this, 
-					getResources().getString(R.string.str_dialog_title), 
-					getResources().getString(R.string.str_dialog_message), 
-					positive, negative);
+		if (Utility.SDCardAvailable()) {
+			//TODO Remove Logging
+			Log.d("IO", "SD Card is available");
+			if (!database.exists()) { // Prompt user to download hymn database
+				//TODO Remove Logging
+				Log.d("IO", "Database already downloaded");
+				DialogInterface.OnClickListener positive = new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						DownloadDatabase.startDownload(MainActivity.this);
+						Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
+					}
+				};
+				DialogInterface.OnClickListener negative = new DialogInterface.OnClickListener() {	
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				};
+				
+				Utility.showDialog(MainActivity.this, 
+						getResources().getString(R.string.str_dialog_title), 
+						getResources().getString(R.string.str_dialog_message), 
+						negative, positive);
+			}
 		}
 	}
 

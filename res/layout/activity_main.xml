@@ -3,21 +3,4 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <EditText
-        android:id="@+id/et_url"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:text="@string/str_tv_url"
-        android:inputType="textUri"
-        tools:context=".MainActivity" />
-    
-    <Button
-        android:id="@+id/btn_download"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/et_url"
-        android:text="@string/str_btn_download"
-        tools:context=".MainActivity" />
-
 </RelativeLayout>

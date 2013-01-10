@@ -18,16 +18,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Environment;
 import android.util.Log;
 
-/* Many utility classes dealing with the Android environment. Highly reusable code.
+/* 
+ * Many utility classes dealing with the Android environment. Highly reusable code.
  * 
  * What's in here?
  * 		- Array-parsing methods
  * 		- Url-parsing method
  * 		- HTTP downloading method 
  * 		- Displaying an AlertDialog
- * 		- Turning an InputStream into String*/
+ * 		- Turning an InputStream into String
+ * 		- Check if SD card mounted
+*/
 
 public class Utility {
 	
@@ -76,6 +80,7 @@ public class Utility {
 	}
 	
 	public static InputStream openConnection(String strUrl) {
+		//TODO Remove Logging
 		Log.d("IO", "Opening HTTP connection");
 		InputStream iStream = null;
 		try {
@@ -84,6 +89,7 @@ public class Utility {
 			urlConnection.connect();
 			iStream = urlConnection.getInputStream();
 		} catch(Exception e) {
+			//TODO Remove Logging
 			Log.d("Exception while downloading url", e.toString());
 		}
 		return iStream;
@@ -113,7 +119,7 @@ public class Utility {
 		return total.toString();
 	}
 	
-	// Given filename, bytes, save file in memory
+	// Given filename and bytes, save file in memory
 	public static void saveBytes(Context context, String filename, byte[] bs) {
 		FileOutputStream saver = null;
 		try {
@@ -127,6 +133,11 @@ public class Utility {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	// Check if SD card mounted
+	public static boolean SDCardAvailable() {
+		return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 	}
 
 }
