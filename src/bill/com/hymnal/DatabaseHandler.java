@@ -42,49 +42,27 @@ public class DatabaseHandler extends Activity {
 		
 		Intent intent = getIntent();
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			String query = intent.getStringExtra(SearchManager.QUERY);
+			final String query = intent.getStringExtra(SearchManager.QUERY);
 			final Cursor cursor = queryDatabase(query);
-			
-			if (cursor.moveToFirst()) {
-				String [] results = cursorToArray(cursor);
+
+			if (cursor.moveToFirst() && !Utility.isInt(query)) {
+				String [] results = Utility.cursorToArray(cursor);
 				ArrayAdapter<String> searchResults = new ArrayAdapter<String>(this, R.layout.list_item, results);
 				ListView resultsList = (ListView) findViewById(R.id.resultsList);
 				
 				resultsList.setOnItemClickListener(new OnItemClickListener() {
 					public void onItemClick(AdapterView<?> parent, View view,
 							int position, long id) {
-						
-						JSONArray jArray = new JSONArray();
-						ArrayList<String> song = null;
-						String sheetMusic = cursor.getString(2);
-						
 						cursor.moveToPosition(position);
-						
-						try {
-							jArray = new JSONArray(getSong(cursor.getString(0)));
-							song = Utility.jsonToArrayList(jArray);
-						} catch (JSONException e) {
-							Toast.makeText(getBaseContext(), "Error retrieving song", Toast.LENGTH_SHORT).show();
-						}
-						finally {
-							cursor.close();
-						}
-						
-						if (song != null) {
-							Intent show_song = new Intent(getBaseContext(), HymnList.class);
-							show_song.putExtra("song", song);
-							show_song.putExtra("sheetMusic", sheetMusic);
-							startActivity(show_song);
-						}
-						else {
-							Toast.makeText(getBaseContext(), "Error retrieving song", Toast.LENGTH_SHORT).show();
-						}
+						displayCursor(cursor);
 					}
 				});
 				
 				resultsList.setAdapter(searchResults);
-			}
-			else {
+			} else if (Utility.isInt(query)) {
+				cursor.moveToFirst();
+				displayCursor(cursor);
+			} else {
 				TextView noResults = (TextView) findViewById(R.id.noResults);
 				noResults.setText(getResources().getString(R.string.str_no_results));
 			}
@@ -92,11 +70,13 @@ public class DatabaseHandler extends Activity {
 	}
 	
 	public Cursor queryDatabase(String query) {
-		Cursor cursor = null;
-		
 		SQLiteDatabase db = openDatabase(DatabaseHandler.this);
-		cursor = db.rawQuery("SELECT url, SNIPPET(songdb, '', '', '...'), sheet_music FROM songdb WHERE song MATCH ?", new String [] {query});
-		return cursor;
+		
+		if (!Utility.isInt(query)) {
+			return db.rawQuery("SELECT url, SNIPPET(songdb, '', '', '...'), sheet_music FROM songdb WHERE song MATCH ?", new String [] {query});
+		} else {
+			return db.rawQuery("SELECT url, SNIPPET(songdb, '', '', '...'), sheet_music FROM songdb WHERE url = ?", new String[] {"h" + query});
+		}
 	}
 	
 	public String getSong(String url) {
@@ -107,20 +87,48 @@ public class DatabaseHandler extends Activity {
 		try {
 			cursor.moveToFirst();
 			return cursor.getString(0);
-		}
-		finally {
+		} finally {
 			cursor.close();
 		}
 	}
 	
-	public String[] cursorToArray(Cursor cursor) {
-		String [] result = new String[cursor.getCount()];
-		for (int i=0; i < cursor.getCount(); i++) {
-			result[i] = cursor.getString(1).replace("\\n", " / ").replace("[", "").replace("]", "");
-			cursor.moveToNext();
+	public void showSong(ArrayList<String> song, String sheetMusic) {
+		if (song != null) {
+			Intent show_song = new Intent(getBaseContext(), HymnList.class);
+			show_song.putExtra("song", song);
+			show_song.putExtra("sheetMusic", sheetMusic);
+			startActivity(show_song);
+		} else {
+			Toast.makeText(getBaseContext(), "Error retrieving song", Toast.LENGTH_SHORT).show();
 		}
-		return result;
 	}
+	
+	public void displayCursor(Cursor cursor) {
+		JSONArray jArray = new JSONArray();
+		ArrayList<String> song = null;
+		String sheetMusic;
+		
+		try {
+			sheetMusic = cursor.getString(2);
+		} catch(Exception e) {
+			sheetMusic = null;
+		}
+		
+		try {
+			jArray = new JSONArray(getSong(cursor.getString(0)));
+			song = Utility.jsonToArrayList(jArray);
+		} catch (JSONException e) {
+			Toast.makeText(getBaseContext(), "Error retrieving song", Toast.LENGTH_SHORT).show();
+		} finally {
+			cursor.close();
+		}
+		
+		showSong(song, sheetMusic);
+	}
+	
+	//////////////////////////////////
+	///MENU CREATION AND MANAGEMENT///
+	//////////////////////////////////
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,8 +151,7 @@ public class DatabaseHandler extends Activity {
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			return true;
-		}
-		else {
+		} else {
 			return super.onOptionsItemSelected(item);
 		}
 	}

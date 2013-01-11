@@ -30,6 +30,10 @@
             android:name=".HymnList"
         />
         
+        <activity
+            android:name=".SheetMusic"
+        />
+        
         <activity 
             android:name=".DatabaseHandler"
             android:exported="false">

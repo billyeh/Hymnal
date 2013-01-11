@@ -24,4 +24,7 @@
     <!-- Search results -->
     <string name="str_no_results">No results found.</string>
     
+    <!-- Sheet music -->
+    <string name="str_content_description">Song sheet music</string>
+    
 </resources>

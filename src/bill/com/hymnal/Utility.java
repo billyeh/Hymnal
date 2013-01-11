@@ -1,11 +1,7 @@
 package bill.com.hymnal;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -16,6 +12,9 @@ import org.json.JSONException;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
@@ -59,13 +58,10 @@ public class Utility {
 	
 	// Extracts the relevant song number and type from an http URL.
 	// http://hymn.aws.af.cm/hymn?hymn=5&type=ns --> hymn5typens 
-	public static String parseUrl(String url ){
+	public static String parseUrl(String url ) {
         String [] split = url.split("/");
         url = split[split.length - 1];
-        split = url.split("=");
-        String hymnType = split[2];
-        String hymnNumber = split[1].split("&")[0];
-        return "hymn" + hymnNumber + "type" + hymnType;
+        return url;
 	}
 	
 	// Check if network is available, then
@@ -107,37 +103,33 @@ public class Utility {
 		dialog.show();
 	}
 	
-	// Given InputStream, returns String
-	public static String convertStream(InputStream iStream) throws IOException {
-		String line = null;
-		BufferedReader r = new BufferedReader(new InputStreamReader(iStream));
-		StringBuilder total = new StringBuilder();
-		while ((line = r.readLine()) != null) {
-			total.append(line);
-		}
-		iStream.close();
-		return total.toString();
-	}
-	
-	// Given filename and bytes, save file in memory
-	public static void saveBytes(Context context, String filename, byte[] bs) {
-		FileOutputStream saver = null;
-		try {
-			saver = context.openFileOutput(filename, Context.MODE_PRIVATE);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		try {
-			saver.write(bs);
-			saver.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	// Given InputStream, returns Bitmap
+	public static Bitmap convertStream(InputStream iStream) throws IOException {
+		return BitmapFactory.decodeStream(iStream);
 	}
 	
 	// Check if SD card mounted
 	public static boolean SDCardAvailable() {
 		return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+	}
+	
+	//Returns whether string is Integer or not
+	public static boolean isInt(String num) {
+		try {
+			Integer.parseInt(num);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
+	}
+	
+	public static String[] cursorToArray(Cursor cursor) {
+		String [] result = new String[cursor.getCount()];
+		for (int i=0; i < cursor.getCount(); i++) {
+			result[i] = cursor.getString(1).replace("\\n", " / ").replace("[", "").replace("]", "");
+			cursor.moveToNext();
+		}
+		return result;
 	}
 
 }

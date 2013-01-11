@@ -17,17 +17,20 @@ public final class R {
     }
     public static final class id {
         public static final int list_item=0x7f080001;
-        public static final int menu_search=0x7f080005;
-        public static final int menu_settings=0x7f080004;
+        public static final int menu_search=0x7f080007;
+        public static final int menu_settings=0x7f080006;
         public static final int noResults=0x7f080003;
         public static final int resultsList=0x7f080002;
+        public static final int sheet_music=0x7f080004;
         public static final int songList=0x7f080000;
+        public static final int wv_music=0x7f080005;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int list=0x7f030001;
         public static final int list_item=0x7f030002;
         public static final int search=0x7f030003;
+        public static final int sheet_music=0x7f030004;
     }
     public static final class menu {
         public static final int activity_main=0x7f070000;
@@ -40,6 +43,9 @@ public final class R {
         /**  Menu values 
          */
         public static final int menu_settings=0x7f050002;
+        /**  Sheet music 
+         */
+        public static final int str_content_description=0x7f05000d;
         public static final int str_database_name=0x7f050009;
         /**  Database download 
          */
