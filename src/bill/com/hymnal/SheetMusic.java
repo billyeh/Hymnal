@@ -1,18 +1,14 @@
 package bill.com.hymnal;
 
-import java.io.FileInputStream;
-
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.webkit.WebView;
-import android.widget.ImageView;
 import android.widget.SearchView;
 
 public class SheetMusic extends Activity {
@@ -43,6 +39,9 @@ public class SheetMusic extends Activity {
 		webview.getSettings().setAllowFileAccess(true);
 		webview.getSettings().setBuiltInZoomControls(true);
 		webview.loadDataWithBaseURL("", "<body><img src=\"" + "file://" + getFilesDir().getAbsolutePath().toString() + "/" + url + "\" / ></body>", "text/html", "utf-8", null);
+		
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
 	}
 	
 	//////////////////////////////////

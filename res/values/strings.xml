@@ -27,4 +27,7 @@
     <!-- Sheet music -->
     <string name="str_content_description">Song sheet music</string>
     
+    <!-- Shared preferences -->
+    <string name="str_shared_prefs">HymnalPrefs</string>
+    
 </resources>

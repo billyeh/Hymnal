@@ -1,7 +1,6 @@
 package bill.com.hymnal;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +28,10 @@ public class DatabaseHandler extends Activity {
 	public static SQLiteDatabase openDatabase(Context context) {
 		File dbPath = context.getExternalFilesDir(null);
 		File database = new File(dbPath, context.getResources().getString(R.string.str_database_name));
-		return SQLiteDatabase.openDatabase(database.getAbsolutePath(), null, 0);
+		if (database.exists()) {
+			return SQLiteDatabase.openDatabase(database.getAbsolutePath(), null, 0);
+		}
+		return null;
 	}
 	
 	@Override
@@ -41,31 +43,35 @@ public class DatabaseHandler extends Activity {
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		
 		Intent intent = getIntent();
-		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			final String query = intent.getStringExtra(SearchManager.QUERY);
-			final Cursor cursor = queryDatabase(query);
+		if (openDatabase(DatabaseHandler.this) != null) {
+			if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+				final String query = intent.getStringExtra(SearchManager.QUERY);
+				final Cursor cursor = queryDatabase(query);
 
-			if (cursor.moveToFirst() && !Utility.isInt(query)) {
-				String [] results = Utility.cursorToArray(cursor);
-				ArrayAdapter<String> searchResults = new ArrayAdapter<String>(this, R.layout.list_item, results);
-				ListView resultsList = (ListView) findViewById(R.id.resultsList);
-				
-				resultsList.setOnItemClickListener(new OnItemClickListener() {
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
-						cursor.moveToPosition(position);
-						displayCursor(cursor);
-					}
-				});
-				
-				resultsList.setAdapter(searchResults);
-			} else if (Utility.isInt(query)) {
-				cursor.moveToFirst();
-				displayCursor(cursor);
-			} else {
-				TextView noResults = (TextView) findViewById(R.id.noResults);
-				noResults.setText(getResources().getString(R.string.str_no_results));
+				if (cursor.moveToFirst() && !Utility.isInt(query)) {
+					String [] results = Utility.cursorToArray(cursor);
+					ArrayAdapter<String> searchResults = new ArrayAdapter<String>(this, R.layout.list_item, results);
+					ListView resultsList = (ListView) findViewById(R.id.resultsList);
+					
+					resultsList.setOnItemClickListener(new OnItemClickListener() {
+						public void onItemClick(AdapterView<?> parent, View view,
+								int position, long id) {
+							cursor.moveToPosition(position);
+							displayCursor(cursor);
+						}
+					});
+					
+					resultsList.setAdapter(searchResults);
+				} else if (Utility.isInt(query)) {
+					cursor.moveToFirst();
+					displayCursor(cursor);
+				} else {
+					TextView noResults = (TextView) findViewById(R.id.noResults);
+					noResults.setText(getResources().getString(R.string.str_no_results));
+				}
 			}
+		} else {
+			Toast.makeText(DatabaseHandler.this, "Search not available. Please download the database.", Toast.LENGTH_SHORT).show();
 		}
 	}
 	
@@ -92,11 +98,12 @@ public class DatabaseHandler extends Activity {
 		}
 	}
 	
-	public void showSong(ArrayList<String> song, String sheetMusic) {
+	public void showSong(String[] song, String sheetMusic, String url) {
 		if (song != null) {
 			Intent show_song = new Intent(getBaseContext(), HymnList.class);
 			show_song.putExtra("song", song);
 			show_song.putExtra("sheetMusic", sheetMusic);
+			show_song.putExtra("title", url);
 			startActivity(show_song);
 		} else {
 			Toast.makeText(getBaseContext(), "Error retrieving song", Toast.LENGTH_SHORT).show();
@@ -105,25 +112,25 @@ public class DatabaseHandler extends Activity {
 	
 	public void displayCursor(Cursor cursor) {
 		JSONArray jArray = new JSONArray();
-		ArrayList<String> song = null;
-		String sheetMusic;
+		String[] song = null;
+		String sheetMusic = null;
+		String url = null;
 		
 		try {
 			sheetMusic = cursor.getString(2);
 		} catch(Exception e) {
 			sheetMusic = null;
 		}
-		
 		try {
 			jArray = new JSONArray(getSong(cursor.getString(0)));
 			song = Utility.jsonToArrayList(jArray);
 		} catch (JSONException e) {
 			Toast.makeText(getBaseContext(), "Error retrieving song", Toast.LENGTH_SHORT).show();
 		} finally {
+			url = cursor.getString(0);
 			cursor.close();
 		}
-		
-		showSong(song, sheetMusic);
+		showSong(song, sheetMusic, url);
 	}
 	
 	//////////////////////////////////

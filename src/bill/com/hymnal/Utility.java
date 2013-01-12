@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,18 +27,21 @@ import android.util.Log;
  * 		- Url-parsing method
  * 		- HTTP downloading method 
  * 		- Displaying an AlertDialog
- * 		- Turning an InputStream into String
+ * 		- Turning an InputStream into Bitmap
  * 		- Check if SD card mounted
+ * 		- Return whether a String is an Int
+ * 		- Convert a cursor into an Array
+ * 		- Find the chorus in a String[] and indent it
 */
 
 public class Utility {
 	
 	// Methods for parsing arrays
-	public static ArrayList<String> jsonToArrayList(JSONArray json) throws JSONException {
-		ArrayList<String> songArray = new ArrayList<String>();
+	public static String[] jsonToArrayList(JSONArray json) throws JSONException {
+		String [] songArray = new String[json.length()];
 		if (json != null) {
 			for (int i = 0; i < json.length(); i ++) {
-				songArray.add(json.get(i).toString());
+				songArray[i] = json.get(i).toString();
 			}
 		}
 		return songArray;
@@ -113,7 +115,7 @@ public class Utility {
 		return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 	}
 	
-	//Returns whether string is Integer or not
+	// Returns whether string is Integer or not
 	public static boolean isInt(String num) {
 		try {
 			Integer.parseInt(num);
@@ -123,6 +125,7 @@ public class Utility {
 		}
 	}
 	
+	// Get the songs from a cursor and turn them into array
 	public static String[] cursorToArray(Cursor cursor) {
 		String [] result = new String[cursor.getCount()];
 		for (int i=0; i < cursor.getCount(); i++) {
@@ -131,5 +134,40 @@ public class Utility {
 		}
 		return result;
 	}
-
+	
+	// Expand abbreviations h, ns, lb, c
+	public static String expandUrl(String url) {
+		String expanded = "";
+		if (url.startsWith("h")) {
+			return "Hymn " + url.replace("h", "");
+		}
+		else if (url.startsWith("ns")) {
+			return "New Song " + url.replace("ns", "");
+		}
+		else if (url.startsWith("lb")) {
+			return "New Song " + url.replace("lb", "");
+		}
+		else if (url.startsWith("c")) {
+			return "Children's Song " + url.replace("c", "");
+		}
+		else {
+			return expanded;
+		}
+	}
+	
+	// Remove chorus marker and indent the chorus
+	public static Song reformatChorus(String[] songArray) {
+		String chorus = null;
+		for (int i=0; i < songArray.length; i ++) {
+			if (songArray[i].startsWith("chorus ")) {
+				Log.d("Chorusing", Integer.toString(songArray[i].indexOf("\n")));
+				songArray[i] = songArray[i].replace("\n", "\n    ").replace("chorus ", "    ");
+				chorus = songArray[i];
+			}
+			else if (songArray[i].startsWith("nonum ")) {
+				songArray[i] = songArray[i].replace("\n", "\n    ").replace("nonum ", "    ");
+			}
+		}
+		return new Song(songArray, chorus);
+	}
 }
