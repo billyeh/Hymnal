@@ -156,11 +156,10 @@ public class Utility {
 	}
 	
 	// Remove chorus marker and indent the chorus
-	public static Song reformatChorus(String[] songArray) {
-		String chorus = null;
+	public static Song reformatChorus(String title, String[] songArray, String sheetMusic) {
+		String chorus = "";
 		for (int i=0; i < songArray.length; i ++) {
-			if (songArray[i].startsWith("chorus ")) {
-				Log.d("Chorusing", Integer.toString(songArray[i].indexOf("\n")));
+			if (songArray[i].startsWith("chorus ") && chorus == "") {
 				songArray[i] = songArray[i].replace("\n", "\n    ").replace("chorus ", "    ");
 				chorus = songArray[i];
 			}
@@ -168,6 +167,7 @@ public class Utility {
 				songArray[i] = songArray[i].replace("\n", "\n    ").replace("nonum ", "    ");
 			}
 		}
-		return new Song(songArray, chorus);
+		Log.d("chorusing", chorus);
+		return new Song(title, songArray, chorus, sheetMusic);
 	}
 }

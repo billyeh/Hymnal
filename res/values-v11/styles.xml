@@ -1,5 +1,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+	<style name="AppTheme" parent="android:Theme.Holo.Light">
+    	<item name="android:actionBarTabStyle">@style/ActionBarTabStyle</item>
+    	<item name="android:actionBarSize">20dip</item>
+	</style>
 
-    <style name="AppTheme" parent="android:Theme.Holo.Light" />
-
+	<style name="ActionBarTabStyle" parent="@android:style/Widget.Holo.ActionBar.TabView">
+    	<item name="android:maxHeight">20dip</item>
+	</style>
 </resources>

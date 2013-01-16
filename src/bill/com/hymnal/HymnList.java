@@ -31,27 +31,24 @@ public class HymnList extends Activity {
         
 		Intent song = getIntent();
 		String[] songArray = song.getStringArrayExtra("song");
-		Song songObj = Utility.reformatChorus(songArray);
+		String title = song.getStringExtra("title");
+		String sheetMusic = song.getStringExtra("sheetMusic");
+		Song songObj = Utility.reformatChorus(title, songArray, sheetMusic);
 		songArray = songObj.getSongArray();
-		String chorus = songObj.getChorus();
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, songArray);
 		ListView songList = (ListView) findViewById(R.id.songList);
 		songList.setSelector(android.R.color.transparent); // No dividers between song verses
 		songList.setAdapter(adapter);
-		
-		String title = song.getStringExtra("title");
+
 		TextView titleText = (TextView) findViewById(R.id.songTitle);
 		titleText.setText(Utility.expandUrl(title));
 		
 		SharedPreferences prefs = getSharedPreferences(getResources().getString(R.string.str_shared_prefs), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = prefs.edit();
-		if (chorus != null) {
-			editor.putString("recentHymns", prefs.getString("recentHymns", "") + title + ":" + chorus.split("\n")[0] + " ");
+		if (!prefs.getString("recentHymns", "").contains(title + ":" + songArray[0].split("\n")[0].replace("1 ", ""))) {
+			Log.d("recentssongs", title + ":" + songArray[0].split("\n")[0].replace("1 ", "") + "::");
+			editor.putString("recentHymns", prefs.getString("recentHymns", "") + title + ":" + songArray[0].split("\n")[0].replace("1 ", "") + "::");
 		}
-		else {
-			editor.putString("recentHymns", prefs.getString("recentHymns", "") + title + ":" + songArray[0].split("\n")[0].replace("1 ", "") + " ");
-		}
-		Log.d("SharedPrefs", prefs.getString("recentHymns", "") + title + ":" + songArray[0].split("\n")[0] + " ");
 		editor.commit();
 		
 		ActionBar actionBar = getActionBar();

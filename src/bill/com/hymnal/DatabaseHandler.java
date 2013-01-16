@@ -42,7 +42,7 @@ public class DatabaseHandler extends Activity {
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		
-		Intent intent = getIntent();
+		Intent intent = getIntent(); 
 		if (openDatabase(DatabaseHandler.this) != null) {
 			if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 				final String query = intent.getStringExtra(SearchManager.QUERY);
@@ -77,44 +77,59 @@ public class DatabaseHandler extends Activity {
 	
 	public Cursor queryDatabase(String query) {
 		SQLiteDatabase db = openDatabase(DatabaseHandler.this);
-		
+		Cursor search = db.rawQuery("SELECT url, SNIPPET(songdb, '', '', '...'), sheet_music FROM songdb WHERE song MATCH ?", new String [] {query});
+		Cursor number = db.rawQuery("SELECT url, SNIPPET(songdb, '', '', '...'), sheet_music FROM songdb WHERE url = ?", new String[] {"h" + query});
 		if (!Utility.isInt(query)) {
-			return db.rawQuery("SELECT url, SNIPPET(songdb, '', '', '...'), sheet_music FROM songdb WHERE song MATCH ?", new String [] {query});
+			return search;
 		} else {
-			return db.rawQuery("SELECT url, SNIPPET(songdb, '', '', '...'), sheet_music FROM songdb WHERE url = ?", new String[] {"h" + query});
+			return number;
 		}
 	}
 	
-	public String getSong(String url) {
+	public static Song getSong(String url, Context context) {
 		Cursor cursor = null;
+		String[] songArray = null;
+		JSONArray jArray= null;
 		
-		SQLiteDatabase db = openDatabase(DatabaseHandler.this);
+		SQLiteDatabase db = openDatabase(context);
 		cursor = db.rawQuery("SELECT song, sheet_music FROM songdb WHERE url = ?", new String [] {url});
 		try {
 			cursor.moveToFirst();
-			return cursor.getString(0);
+			try {
+				jArray = new JSONArray(cursor.getString(0));
+			} catch (JSONException e) {
+				// Not afraid of JSON exceptions, since this comes from me, and I've validated it
+				e.printStackTrace();
+			}
+			try {
+				songArray = Utility.jsonToArrayList(jArray);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			return Utility.reformatChorus(url, songArray, cursor.getString(1));
 		} finally {
 			cursor.close();
 		}
 	}
 	
-	public void showSong(String[] song, String sheetMusic, String url) {
+	public static void showSong(Song song, Context context) {
 		if (song != null) {
-			Intent show_song = new Intent(getBaseContext(), HymnList.class);
-			show_song.putExtra("song", song);
-			show_song.putExtra("sheetMusic", sheetMusic);
-			show_song.putExtra("title", url);
-			startActivity(show_song);
+			Intent show_song = new Intent(context, HymnList.class);
+			show_song.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			show_song.putExtra("song", song.getSongArray());
+			show_song.putExtra("sheetMusic", song.getSheetMusic());
+			show_song.putExtra("title", song.getUrl());
+			context.startActivity(show_song);
 		} else {
-			Toast.makeText(getBaseContext(), "Error retrieving song", Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, "Error retrieving song", Toast.LENGTH_SHORT).show();
 		}
 	}
 	
 	public void displayCursor(Cursor cursor) {
-		JSONArray jArray = new JSONArray();
 		String[] song = null;
 		String sheetMusic = null;
 		String url = null;
+		Song songObj;
 		
 		try {
 			sheetMusic = cursor.getString(2);
@@ -122,15 +137,14 @@ public class DatabaseHandler extends Activity {
 			sheetMusic = null;
 		}
 		try {
-			jArray = new JSONArray(getSong(cursor.getString(0)));
-			song = Utility.jsonToArrayList(jArray);
-		} catch (JSONException e) {
+			song = getSong(cursor.getString(0), this).getSongArray();
+		} catch (Exception e) {
 			Toast.makeText(getBaseContext(), "Error retrieving song", Toast.LENGTH_SHORT).show();
 		} finally {
 			url = cursor.getString(0);
-			cursor.close();
 		}
-		showSong(song, sheetMusic, url);
+		songObj = Utility.reformatChorus(url, song, sheetMusic);
+		showSong(songObj, this);
 	}
 	
 	//////////////////////////////////
@@ -140,13 +154,9 @@ public class DatabaseHandler extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
-		
-	    SearchManager searchManager =
-	            (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-	    SearchView searchView =
-	             (SearchView) menu.findItem(R.id.menu_search).getActionView();
-	    searchView.setSearchableInfo(
-	             searchManager.getSearchableInfo(getComponentName()));
+	    SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+	    SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+	    searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 		
 		return super.onCreateOptionsMenu(menu);
 	}

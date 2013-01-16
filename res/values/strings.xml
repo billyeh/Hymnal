@@ -30,4 +30,7 @@
     <!-- Shared preferences -->
     <string name="str_shared_prefs">HymnalPrefs</string>
     
+    <!-- Main page recent hymns -->
+    <string name="str_recent">Recently viewed hymns</string>
+    
 </resources>
