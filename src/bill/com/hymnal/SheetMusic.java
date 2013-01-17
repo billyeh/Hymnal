@@ -6,8 +6,8 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.webkit.WebView;
 import android.widget.SearchView;
 
@@ -20,7 +20,6 @@ public class SheetMusic extends Activity {
 		Intent music = getIntent();
 		String url = music.getStringExtra("sheetMusic");
 		WebView webview = (WebView) findViewById(R.id.wv_music);
-		Log.d("Webview", "<body><img src=\"" + "file://" + getFilesDir().getAbsolutePath().toString() + "/" + url + "\" /></body>");
 		webview.getSettings().setAllowFileAccess(true);
 		webview.getSettings().setBuiltInZoomControls(true);
 		webview.loadDataWithBaseURL("", "<body><img src=\"" + "file://" + getFilesDir().getAbsolutePath().toString() + "/" + url + "\" / ></body>", "text/html", "utf-8", null);
@@ -42,5 +41,18 @@ public class SheetMusic extends Activity {
 	    searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 		
 		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			Intent intent = new Intent(this, MainActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
 	}
 }

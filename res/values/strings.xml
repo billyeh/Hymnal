@@ -25,7 +25,7 @@
     <string name="str_no_results">No results found.</string>
     
     <!-- Sheet music -->
-    <string name="str_content_description">Song sheet music</string>
+    <string name="str_none">Song sheet music is not available from hymnal.net for this song.</string>
     
     <!-- Shared preferences -->
     <string name="str_shared_prefs">HymnalPrefs</string>

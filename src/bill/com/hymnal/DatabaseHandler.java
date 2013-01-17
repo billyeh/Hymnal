@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -134,6 +135,7 @@ public class DatabaseHandler extends Activity {
 		try {
 			sheetMusic = cursor.getString(2);
 		} catch(Exception e) {
+			Log.d("musicing", sheetMusic.toString());
 			sheetMusic = null;
 		}
 		try {

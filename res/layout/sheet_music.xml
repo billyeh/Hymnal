@@ -2,11 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-	<ImageView 
+	<TextView 
 	    android:id="@+id/sheet_music"
 	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:contentDescription="@string/str_content_description" />
+	    android:layout_height="wrap_content" />
 	<WebView
 	    android:id="@+id/wv_music"
 	    android:layout_width="fill_parent"

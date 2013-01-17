@@ -71,19 +71,14 @@ public class HymnList extends Activity {
 		
 		@Override
 		protected String doInBackground(String... url) {
-			if (!Utility.inArray(fileList(), Utility.parseUrl(url[0]))) {
-				try {
-					sheetMusicBitmap = downloadSheetMusic(url[0]);
-					FileOutputStream out;
-					out = openFileOutput(Utility.parseUrl(url[0]), Context.MODE_PRIVATE);
-					sheetMusicBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-					out.close();
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-			else {
-				Log.d("Sheetmusic", Utility.parseUrl(url[0]) + " found in cache");
+			try {
+				sheetMusicBitmap = downloadSheetMusic(url[0]);
+				FileOutputStream out;
+				out = openFileOutput(Utility.parseUrl(url[0]), Context.MODE_PRIVATE);
+				sheetMusicBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+				out.close();
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
 			return Utility.parseUrl(url[0]);
 		}
@@ -110,8 +105,7 @@ public class HymnList extends Activity {
 		Intent song = getIntent();
 		final String sheetMusic = song.getStringExtra("sheetMusic");
 
-		if (sheetMusic != null) {
-			Log.d("Menu", sheetMusic);
+		if (sheetMusic != null && !sheetMusic.isEmpty()) {
 			MenuItem sheetMusicItem = menu.add("Get Sheet Music");
 			
 			sheetMusicItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {

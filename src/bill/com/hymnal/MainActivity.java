@@ -1,6 +1,8 @@
 package bill.com.hymnal;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 
 import android.app.Activity;
 import android.app.SearchManager;
@@ -36,6 +38,8 @@ public class MainActivity extends Activity {
 				}	
 			}
 		}
+		Collections.reverse(Arrays.asList(songs));
+		Collections.reverse(Arrays.asList(urls));
 		setContentView(R.layout.activity_main);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, songs);
 		ListView recentList = (ListView) findViewById(R.id.recentList);
@@ -97,5 +101,4 @@ public class MainActivity extends Activity {
     
 		return super.onCreateOptionsMenu(menu);
 	}
-
 }

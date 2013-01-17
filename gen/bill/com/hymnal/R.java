@@ -46,9 +46,6 @@ public final class R {
         /**  Menu values 
          */
         public static final int menu_settings=0x7f050002;
-        /**  Sheet music 
-         */
-        public static final int str_content_description=0x7f05000d;
         public static final int str_database_name=0x7f050009;
         /**  Database download 
          */
@@ -62,6 +59,9 @@ public final class R {
         /**  Search results 
          */
         public static final int str_no_results=0x7f05000c;
+        /**  Sheet music 
+         */
+        public static final int str_none=0x7f05000d;
         /**  Main page recent hymns 
          */
         public static final int str_recent=0x7f05000f;
