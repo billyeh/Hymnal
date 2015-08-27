@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -25,34 +26,42 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		SharedPreferences prefs = getSharedPreferences(getResources().getString(R.string.str_shared_prefs), Context.MODE_PRIVATE);
-		String[] pairs = prefs.getString("recentHymns", "::").split("::");
-		final String[] songs = new String[pairs.length];
-		final String[] urls = new String[pairs.length];
-		if (pairs.length > 0) {
-			if (pairs[0] != "") {
-				for (int i = 0; i < pairs.length; i ++) {
-					Log.d("pairs", pairs[i]);
-					songs[i] = pairs[i].split(":")[1];
-					urls[i] = pairs[i].split(":")[0];
-				}	
+		try {
+			SharedPreferences prefs = getSharedPreferences(getResources().getString(R.string.str_shared_prefs), Context.MODE_PRIVATE);
+			String[] pairs = prefs.getString("recentHymns", "::").split("::");
+			final String[] songs = new String[pairs.length];
+			final String[] urls = new String[pairs.length];
+			if (pairs.length > 0) {
+				if (pairs[0].equals("")) {
+					for (int i = 0; i < pairs.length; i ++) {
+						Log.d("pairs", pairs[i]);
+						songs[i] = pairs[i].split(":")[1];
+						urls[i] = pairs[i].split(":")[0];
+					}
+				}
+			}
+			Collections.reverse(Arrays.asList(songs));
+			Collections.reverse(Arrays.asList(urls));
+			setContentView(R.layout.activity_main);
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, songs);
+			ListView recentList = (ListView) findViewById(R.id.recentList);
+			if (adapter != null && recentList != null) {
+				recentList.setAdapter(adapter);
+				recentList.setOnItemClickListener(new OnItemClickListener() {
+					public void onItemClick(AdapterView<?> parent, View view,
+											int position, long id) {
+						String url = urls[position];
+						DatabaseHandler.showSong(DatabaseHandler.getSong(url, getBaseContext()), getBaseContext());
+					}
+				});
 			}
 		}
-		Collections.reverse(Arrays.asList(songs));
-		Collections.reverse(Arrays.asList(urls));
-		setContentView(R.layout.activity_main);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item, songs);
-		ListView recentList = (ListView) findViewById(R.id.recentList);
-		if (adapter != null && recentList != null) {
-			recentList.setAdapter(adapter);
-			recentList.setOnItemClickListener(new OnItemClickListener() {
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
-					String url = urls[position];
-					DatabaseHandler.showSong(DatabaseHandler.getSong(url, getBaseContext()), getBaseContext());
-				}
-				});
+		catch (Exception e) {
+			SharedPreferences prefs = getSharedPreferences(getResources().getString(R.string.str_shared_prefs), Context.MODE_PRIVATE);
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString("recentHymns", ""); //error loading recent songs, just clear them :)
 		}
+
 	}
 	
 	@Override
@@ -63,10 +72,8 @@ public class MainActivity extends Activity {
 		File database = new File(dbPath, getResources().getString(R.string.str_database_name));
 		
 		if (Utility.SDCardAvailable()) {
-			//TODO Remove Logging
 			Log.d("IO", "SD Card is available");
 			if (!database.exists()) { // Prompt user to download hymn database
-				//TODO Remove Logging
 				Log.d("IO", "Database already downloaded");
 				DialogInterface.OnClickListener positive = new DialogInterface.OnClickListener() {
 					

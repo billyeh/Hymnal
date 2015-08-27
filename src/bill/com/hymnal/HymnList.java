@@ -3,6 +3,9 @@ package bill.com.hymnal;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -13,6 +16,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,18 +49,26 @@ public class HymnList extends Activity {
 		
 		SharedPreferences prefs = getSharedPreferences(getResources().getString(R.string.str_shared_prefs), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = prefs.edit();
-		if (!prefs.getString("recentHymns", "").contains(title + ":" + songArray[0].split("\n")[0].replace("1 ", ""))) {
-			Log.d("recentssongs", title + ":" + songArray[0].split("\n")[0].replace("1 ", "") + "::");
-			editor.putString("recentHymns", prefs.getString("recentHymns", "") + title + ":" + songArray[0].split("\n")[0].replace("1 ", "") + "::");
+        String firstLine = title + ":" + songArray[0].split("\n")[0].replace("1 ", "");
+		if (!prefs.getString("recentHymns", "").contains(firstLine)) {
+			editor.putString("recentHymns", prefs.getString("recentHymns", "") + firstLine + "::");
+		}
+		else {
+            List<String> firstLines = new ArrayList<String>(Arrays.asList(prefs.getString("recentHymns", "").split("::")));
+            firstLines.remove(firstLine);
+            firstLines.add(firstLine);
+            editor.putString("recentHymns", TextUtils.join("::", firstLines) + "::");
 		}
 		editor.commit();
 		
 		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 	}
 	
 	private Bitmap downloadSheetMusic(String url) throws IOException {
-		InputStream iStream = null;
+		InputStream iStream;
 		if (Utility.inArray(fileList(), Utility.parseUrl(url))){
 			Log.d("IO", "File found in cache");
 			iStream = openFileInput(Utility.parseUrl(url));
