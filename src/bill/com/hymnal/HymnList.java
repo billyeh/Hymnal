@@ -51,13 +51,13 @@ public class HymnList extends Activity {
 		SharedPreferences.Editor editor = prefs.edit();
         String firstLine = title + ":" + songArray[0].split("\n")[0].replace("1 ", "");
 		if (!prefs.getString("recentHymns", "").contains(firstLine)) {
-			editor.putString("recentHymns", prefs.getString("recentHymns", "") + firstLine + "::");
+			editor.putString("recentHymns", prefs.getString("recentHymns", "") + "::" + firstLine);
 		}
 		else {
             List<String> firstLines = new ArrayList<String>(Arrays.asList(prefs.getString("recentHymns", "").split("::")));
             firstLines.remove(firstLine);
             firstLines.add(firstLine);
-            editor.putString("recentHymns", TextUtils.join("::", firstLines) + "::");
+            editor.putString("recentHymns", TextUtils.join("::", firstLines));
 		}
 		editor.commit();
 		
@@ -113,7 +113,7 @@ public class HymnList extends Activity {
 	    SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 	    SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
 	    searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-	    
+	    /* URLs for sheet music don't work anymore :(
 		Intent song = getIntent();
 		final String sheetMusic = song.getStringExtra("sheetMusic");
 
@@ -128,8 +128,9 @@ public class HymnList extends Activity {
 				}
 			});
 		}
-		
+		*/
 		return super.onCreateOptionsMenu(menu);
+
 	}
 	
 	@Override
@@ -143,6 +144,7 @@ public class HymnList extends Activity {
 		else {
 			return super.onOptionsItemSelected(item);
 		}
+
 	}
 	
 }

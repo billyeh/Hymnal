@@ -3,12 +3,31 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <TextView
-        android:id="@+id/recentHymns"
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/str_recent"
-    />
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/recentHymns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/str_recent"
+            android:textSize="16dp"
+            android:layout_margin="10dp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/clearRecents"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear"
+            android:textSize="16dp"
+            android:padding="4dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp" />
+    </RelativeLayout>
+
     <ListView
        android:id="@+id/recentList"
        android:layout_width="match_parent"
