@@ -1,0 +1,36 @@
+<resources>
+	<!-- Main app values -->
+    <string name="app_name">Hymnal</string>
+    <string name="title_activity_main">Hymnal</string>
+    
+    <!-- Menu values -->
+    <string name="menu_settings">Settings</string>
+	<string name="menu_search">Search</string>
+    
+    <!-- Layout for main activity -->
+    <string name="str_search_hint">Search hymns</string>
+    <string name="str_tv_url">http://hymn.aws.af.cm/hymn?hymn=5&amp;type=ns</string>
+    
+    <!-- Database download -->
+    <string name="str_database_url">http://hymn.aws.af.cm/res/db/songdb.db</string>
+    <string name="str_download_description">Downloading hymns for Hymnal App</string>
+    <string name="str_download_title">Hymn Database</string>
+    <string name="str_database_name">songdb.db</string>
+    
+    <!-- For the download dialog box -->
+    <string name="str_dialog_title">Download hymns?</string>
+    <string name="str_dialog_message">Download the hymns to use this app more easily. You may want to switch to Wi-Fi for this download.</string>
+    
+    <!-- Search results -->
+    <string name="str_no_results">No results found.</string>
+    
+    <!-- Sheet music -->
+    <string name="str_none">Song sheet music is not available from hymnal.net for this song.</string>
+    
+    <!-- Shared preferences -->
+    <string name="str_shared_prefs">HymnalPrefs</string>
+    
+    <!-- Main page recent hymns -->
+    <string name="str_recent">Recently viewed hymns</string>
+    
+</resources>
